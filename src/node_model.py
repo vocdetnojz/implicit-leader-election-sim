@@ -8,6 +8,7 @@ class NodeModel(object):
         self.__id = id
         self.__contender = is_contender
         self.__leader = False
+        self.__proxies = []
         pass
 
     @property
@@ -21,6 +22,10 @@ class NodeModel(object):
     @property
     def id(self):
         return self.__id
+
+    def add_proxy(self, proxy_node):
+        if proxy_node not in self.__proxies:
+            self.__proxies.append(proxy_node)
 
     def set_id(self, id: int):
         """
