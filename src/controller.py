@@ -1,6 +1,8 @@
 import random
+import math
 from src.node_model import NodeModel
 from src.network_builder import NetworkBuilder
+import constants
 
 
 class Controller(object):
@@ -8,10 +10,72 @@ class Controller(object):
     def __init__(self, network_size: int = 10):
         self.__pref_network_size = network_size
         self.__network = NetworkBuilder().build_network()
+        self.__parallel_rw_count = int(constants.c2 * math.sqrt(self.__network.size * math.log10(self.__network.size)))
         pass
 
     def run(self):
         # TODO
+        pass
+
+    def __run_parallel_walks(self):
+        """
+        Algorithm 2 Step 1 & 2
+
+        :return:
+        """
+        for contender in self.__network.contenders:
+            self.__set_contender_proxies(contender)
+            pass
+        pass
+
+    def __round_1(self):
+        """
+        Algorithm 2 Step 3.1
+
+        :return:
+        """
+        for contender in self.__network.contenders:
+            i2 = list()
+            for proxy in contender.get_proxies:
+                proxy_id = proxy.id  # TODO ??
+                proxy_d = proxy.proxy_distinctness(contender)  # TODO ??
+                proxy_i1 = proxy.get_contenders
+                i2 = i2 + proxy_i1
+                pass
+            contender.set_i2(i2)
+            pass
+        pass
+
+    def __round_2(self):
+        """
+        Algorithm 2 Step 3.2
+
+        :return:
+        """
+        # TODO
+        pass
+
+    def __round_3(self):
+        """
+        Algorithm 2 Step 3.3
+
+        :return:
+        """
+        # TODO
+        pass
+
+    def __set_contender_proxies(self, node: NodeModel):
+        """
+        Runs c2*sqrt(n*log10(n)) parallel random walks to get the proxies of the Node
+
+        :param node: NodeModel
+        :return:
+        """
+        for _ in range(0, self.__parallel_rw_count):
+            proxy = self.__execute_random_walk(node, self.__parallel_rw_count)
+            proxy.add_contender(node)
+            node.add_proxy(proxy)
+            pass
         pass
 
     def __init_random_walk_phase(self):
