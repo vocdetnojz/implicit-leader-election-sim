@@ -1,3 +1,7 @@
+import math
+import constants
+
+
 class NodeModel(object):
     """
     Node object, has inner function which is executed at each cycle
@@ -8,14 +12,19 @@ class NodeModel(object):
         self.__id = id
         self.__contender = is_contender
         self.__leader = False
+        self.__stopped = False
         self.__contenders = list()
         self.__proxies = list()
         self.__i1 = list()
         self.__i2 = list()
         self.__i3 = list()
         self.__i4 = list()
-
+        self.__winner_received = False
         pass
+    
+    @property
+    def is_stopped(self):
+        return self.__stopped
 
     @property
     def is_contender(self):
@@ -53,6 +62,18 @@ class NodeModel(object):
     def i4(self):
         return self.__i4
 
+    @property
+    def is_winner_received(self):
+        return self.__winner_received
+
+    def receive_winner(self):
+        self.__winner_received = True
+
+    def stop(self):
+        self.__stopped = True
+        # self.__contender = False  # TODO: if stopped not a contender anymore?
+        pass
+
     def set_i1(self, i1):
         self.__i1 = i1
         pass
@@ -68,8 +89,32 @@ class NodeModel(object):
     def set_i4(self, i4):
         self.__i4 = i4
 
+    def send_winner_to_contenders(self):
+        for contender in self.__contenders:
+            if not contender.is_winner_received:
+                contender.receive_winner()
+                contender.send_winner_to_proxies()
+
+    def send_winner_to_proxies(self):
+        for proxy in self.__proxies:
+            if not proxy.is_winner_received:
+                proxy.receive_winner()
+                proxy.send_winner_to_contenders()
+
     def proxy_distinctness(self, contender):
         return [c for c in self.__contenders if c.id == contender.id] == 1
+
+    def contender_distinctness(self, network_size):
+        limit = int((constants.c2 / 2) * math.sqrt(network_size * math.log10(network_size)))
+        distinct_proxies = [proxy for proxy in self.__proxies if proxy.proxy_distinctness(self)]
+        return len(distinct_proxies) >= limit
+
+    def contender_intersection(self, network):
+        limit = int((3/4) * constants.c1 * math.log10(network.con))
+        set_of_adj_cont = set()
+        for adj_cont in self.__i2:
+            set_of_adj_cont.add(adj_cont)
+        return len(set_of_adj_cont) >= limit
 
     def add_proxy(self, proxy_node):
         if self.is_contender and proxy_node.id != self.id:

@@ -35,14 +35,12 @@ class Controller(object):
         :return:
         """
         for contender in self.__network.contenders:
-            i2 = list()
             for proxy in contender.get_proxies:
                 proxy_id = proxy.id  # TODO ??
                 proxy_d = proxy.proxy_distinctness(contender)  # TODO ??
                 proxy_i1 = proxy.get_contenders
-                i2 = i2 + proxy_i1
+                contender.set_i2 = contender.i2 + proxy_i1
                 pass
-            contender.set_i2(i2)
             pass
         pass
 
@@ -52,7 +50,11 @@ class Controller(object):
 
         :return:
         """
-        # TODO
+        for contender in self.__network.contenders:
+            for proxy in contender.get_proxies:
+                proxy.set_i3 = proxy.i3 + contender.i2
+                pass
+            pass
         pass
 
     def __round_3(self):
@@ -61,7 +63,44 @@ class Controller(object):
 
         :return:
         """
-        # TODO
+        for contender in self.__network.contenders:
+            for proxy in contender.get_proxies:
+                contender.set_i4 = contender.i4 + proxy.i3
+        pass
+
+    def __stop_if_intersection_and_distinctness_are_met(self):
+        """
+        Algorithm 2 Step 4
+
+        :return:
+        """
+        for contender in self.__network.contenders:
+            if contender.contender_distinctness(self.__network.size) and \
+                    contender.contender_intersection(len(self.__network.contenders)):
+                contender.stop()
+                pass
+            pass
+        # this will set the
+        for contender in self.__network.contenders:
+            if contender.is_stopped:
+                list_of_higher_id_contenders_in_i4 = [cont for cont in contender.i4 if cont.id > contender.id]
+                if not list_of_higher_id_contenders_in_i4:
+                    # declare itself as leader
+                    contender.set_as_leader()
+                    self.__propagate_winner_messages(contender)
+                pass
+            pass
+        pass
+
+    def __propagate_winner_messages(self, contender: NodeModel):
+        """
+        Propagate the winner messages
+        Algorithm 5, 6, 7
+
+        :param contender:
+        :return:
+        """
+        contender.send_winner_to_proxies()
         pass
 
     def __set_contender_proxies(self, node: NodeModel):
