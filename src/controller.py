@@ -11,10 +11,52 @@ class Controller(object):
         self.__pref_network_size = network_size
         self.__network = NetworkBuilder().build_network()
         self.__parallel_rw_count = int(constants.c2 * math.sqrt(self.__network.size * math.log10(self.__network.size)))
+        self.__random_walk_length = constants.tu
         pass
 
     def run(self):
-        # TODO
+
+        pass
+
+    def run_algorithm_1(self):
+        # step 1
+        # done by network builder
+
+        # step 2
+        # done by network builder
+
+        # step 3
+        # makes no sense to me, but ok...
+        self.__init_random_walk_phase()
+
+        # step 4
+        # done by network builder
+        pass
+
+    def run_algorithm_2(self):
+        while self.__network.contenders and [c for c in self.__network.contenders if not c.is_stopped]:
+            self.__run_algorithm_2_round()
+            self.__random_walk_length *= 2
+        pass
+
+    def __run_algorithm_2_round(self):
+        # step 1 2
+        self.__run_parallel_walks()
+
+        # step 3.1
+        self.__round_1()
+
+        # step 3.2
+        self.__round_2()
+
+        # step 3.3
+        self.__round_3()
+
+        # step 4, 5, 6, 7
+        self.__stop_if_intersection_and_distinctness_are_met()
+
+        # TODO: how to handle step 7: "appends it to all future messages"
+
         pass
 
     def __run_parallel_walks(self):
@@ -36,8 +78,8 @@ class Controller(object):
         """
         for contender in self.__network.contenders:
             for proxy in contender.get_proxies:
-                proxy_id = proxy.id  # TODO ??
-                proxy_d = proxy.proxy_distinctness(contender)  # TODO ??
+                # proxy_id = proxy.id  # skipped for the simulation
+                # proxy_d = proxy.proxy_distinctness(contender)  # distinctness will be determined later on
                 proxy_i1 = proxy.get_contenders
                 contender.set_i2 = contender.i2 + proxy_i1
                 pass
@@ -70,7 +112,7 @@ class Controller(object):
 
     def __stop_if_intersection_and_distinctness_are_met(self):
         """
-        Algorithm 2 Step 4
+        Algorithm 2 Step 4, 5, 6, 7
 
         :return:
         """
@@ -80,7 +122,7 @@ class Controller(object):
                 contender.stop()
                 pass
             pass
-        # this will set the
+        # this will determine the leader and propagate the winner messages
         for contender in self.__network.contenders:
             if contender.is_stopped:
                 list_of_higher_id_contenders_in_i4 = [cont for cont in contender.i4 if cont.id > contender.id]
@@ -88,6 +130,12 @@ class Controller(object):
                     # declare itself as leader
                     contender.set_as_leader()
                     self.__propagate_winner_messages(contender)
+                pass
+            pass
+        for contender in self.__network.contenders:
+            if contender.is_stopped and not contender.is_leader:
+                # node is not a contender anymore if it stopped and it isn't the leader
+                contender.set_if_contender(False)
                 pass
             pass
         pass
@@ -111,7 +159,7 @@ class Controller(object):
         :return:
         """
         for _ in range(0, self.__parallel_rw_count):
-            proxy = self.__execute_random_walk(node, self.__parallel_rw_count)
+            proxy = self.__execute_random_walk(node, self.__random_walk_length)
             proxy.add_contender(node)
             node.add_proxy(proxy)
             pass

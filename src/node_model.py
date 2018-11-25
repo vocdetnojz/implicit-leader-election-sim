@@ -71,7 +71,6 @@ class NodeModel(object):
 
     def stop(self):
         self.__stopped = True
-        # self.__contender = False  # TODO: if stopped not a contender anymore?
         pass
 
     def set_i1(self, i1):
