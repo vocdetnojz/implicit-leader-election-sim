@@ -13,12 +13,12 @@ class NodeModel(object):
         self.__contender = is_contender
         self.__leader = False
         self.__stopped = False
-        self.__contenders = list()
-        self.__proxies = list()
-        self.__i1 = list()
-        self.__i2 = list()
-        self.__i3 = list()
-        self.__i4 = list()
+        self.__contenders = set()
+        self.__proxies = set()
+        self.__i1 = set()
+        self.__i2 = set()
+        self.__i3 = set()
+        self.__i4 = set()
         self.__winner_received = False
         pass
     
@@ -67,6 +67,8 @@ class NodeModel(object):
         return self.__winner_received
 
     def receive_winner(self):
+        if not self.is_leader:
+            self.__contender = False
         self.__winner_received = True
 
     def stop(self):
@@ -91,6 +93,7 @@ class NodeModel(object):
     def send_winner_to_contenders(self):
         for contender in self.__contenders:
             if not contender.is_winner_received:
+                contender.stop()
                 contender.receive_winner()
                 contender.send_winner_to_proxies()
 
@@ -101,7 +104,7 @@ class NodeModel(object):
                 proxy.send_winner_to_contenders()
 
     def proxy_distinctness(self, contender):
-        return [c for c in self.__contenders if c.id == contender.id] == 1
+        return len([c for c in self.__contenders if c.id == contender.id]) == 1
 
     def contender_distinctness(self, network_size):
         limit = int((constants.c2 / 2) * math.sqrt(network_size * math.log10(network_size)))
@@ -109,7 +112,7 @@ class NodeModel(object):
         return len(distinct_proxies) >= limit
 
     def contender_intersection(self, network):
-        limit = int((3/4) * constants.c1 * math.log10(network.con))
+        limit = int((3/4) * constants.c1 * math.log10(network))
         set_of_adj_cont = set()
         for adj_cont in self.__i2:
             set_of_adj_cont.add(adj_cont)
@@ -118,13 +121,13 @@ class NodeModel(object):
     def add_proxy(self, proxy_node):
         if self.is_contender and proxy_node.id != self.id:
             # if proxy_node not in self.__proxies:
-            self.__proxies.append(proxy_node)
+            self.__proxies.add(proxy_node)
             pass
         pass
 
     def add_contender(self, contender_node):
-        if not self.is_contender and not contender_node.id != self.id:
-            self.__contenders.append(contender_node)
+        if not self.is_contender and contender_node.id != self.id:
+            self.__contenders.add(contender_node)
             pass
         pass
 

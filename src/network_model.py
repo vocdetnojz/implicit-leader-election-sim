@@ -32,6 +32,6 @@ class NetworkModel(object):
         return [self.__nodes[n_id] for n_id in ids]
 
     def get_node_ids_neighbors(self, n_id):
-        return [i for i in self.__node_matrix[n_id] if int(i)]
+        return self.__node_matrix.get_node_neighbor_ids(self.__nodes[n_id])
 
     pass

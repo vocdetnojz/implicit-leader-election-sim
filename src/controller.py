@@ -10,12 +10,19 @@ class Controller(object):
     def __init__(self, network_size: int = 10):
         self.__pref_network_size = network_size
         self.__network = NetworkBuilder().build_network()
+        while len(self.__network.contenders) < 3:
+            self.__network = NetworkBuilder().build_network()
         self.__parallel_rw_count = int(constants.c2 * math.sqrt(self.__network.size * math.log10(self.__network.size)))
         self.__random_walk_length = constants.tu
+        # stats
+        print("Contenders: ", len(self.__network.contenders))
+        print("Parallel random walk count: ", self.__parallel_rw_count)
+        print("Parallel random walk length: ", self.__random_walk_length)
         pass
 
     def run(self):
-
+        self.run_algorithm_1()
+        self.run_algorithm_2()
         pass
 
     def run_algorithm_1(self):
@@ -27,7 +34,7 @@ class Controller(object):
 
         # step 3
         # makes no sense to me, but ok...
-        self.__init_random_walk_phase()
+        # self.__init_random_walk_phase()
 
         # step 4
         # done by network builder
@@ -37,6 +44,7 @@ class Controller(object):
         while self.__network.contenders and [c for c in self.__network.contenders if not c.is_stopped]:
             self.__run_algorithm_2_round()
             self.__random_walk_length *= 2
+        print("leaders: ", len([c for c in self.__network.contenders if c.is_leader]))
         pass
 
     def __run_algorithm_2_round(self):
@@ -81,7 +89,7 @@ class Controller(object):
                 # proxy_id = proxy.id  # skipped for the simulation
                 # proxy_d = proxy.proxy_distinctness(contender)  # distinctness will be determined later on
                 proxy_i1 = proxy.get_contenders
-                contender.set_i2 = contender.i2 + proxy_i1
+                contender.set_i2(set.union(contender.i2, proxy_i1))
                 pass
             pass
         pass
@@ -94,7 +102,7 @@ class Controller(object):
         """
         for contender in self.__network.contenders:
             for proxy in contender.get_proxies:
-                proxy.set_i3 = proxy.i3 + contender.i2
+                proxy.set_i3(set.union(proxy.i3, contender.i2))
                 pass
             pass
         pass
@@ -107,7 +115,7 @@ class Controller(object):
         """
         for contender in self.__network.contenders:
             for proxy in contender.get_proxies:
-                contender.set_i4 = contender.i4 + proxy.i3
+                contender.set_i4(set.union(contender.i4, proxy.i3))
         pass
 
     def __stop_if_intersection_and_distinctness_are_met(self):
@@ -117,8 +125,7 @@ class Controller(object):
         :return:
         """
         for contender in self.__network.contenders:
-            if contender.contender_distinctness(self.__network.size) and \
-                    contender.contender_intersection(len(self.__network.contenders)):
+            if contender.contender_distinctness(self.__network.size) and contender.contender_intersection(len(self.__network.contenders)):
                 contender.stop()
                 pass
             pass
