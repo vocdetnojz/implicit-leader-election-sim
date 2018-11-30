@@ -10,41 +10,37 @@ class Controller(object):
     def __init__(self, network_size: int = 10):
         self.__pref_network_size = network_size
         self.__network = NetworkBuilder().build_network()
+        print("Graph representation build done...\n")
         while len(self.__network.contenders) < 3:
             self.__network = NetworkBuilder().build_network()
         self.__parallel_rw_count = int(constants.c2 * math.sqrt(self.__network.size * math.log10(self.__network.size)))
         self.__random_walk_length = constants.tu
         # stats
         print("Contenders: ", len(self.__network.contenders))
-        print("Parallel random walk count: ", self.__parallel_rw_count)
+        print("Parallel random walk count per contender: ", self.__parallel_rw_count)
         print("Parallel random walk length: ", self.__random_walk_length)
+        self.__rounds = 0
         pass
 
     def run(self):
-        self.run_algorithm_1()
+        # algorithm 1 is basically implemented in the __init__
         self.run_algorithm_2()
         pass
 
-    def run_algorithm_1(self):
-        # step 1
-        # done by network builder
-
-        # step 2
-        # done by network builder
-
-        # step 3
-        # makes no sense to me, but ok...
-        # self.__init_random_walk_phase()
-
-        # step 4
-        # done by network builder
-        pass
-
     def run_algorithm_2(self):
+        print("\n==================================================")
+        print("Contenders's IDs before election: ", [c.id for c in self.__network.contenders])
         while self.__network.contenders and [c for c in self.__network.contenders if not c.is_stopped]:
+            self.__rounds += 1
+            print("--------------------------------------------------")
+            print("ROUND ", self.__rounds)
             self.__run_algorithm_2_round()
             self.__random_walk_length *= 2
-        print("leaders: ", len([c for c in self.__network.contenders if c.is_leader]))
+            print("Contenders' IDs after round: ", [c.id for c in self.__network.contenders])
+            pass
+        print("==================================================\n")
+        print("LEADER(s): ", [c.id for c in self.__network.contenders if c.is_leader])
+        print("rounds until leader selected: ", self.__rounds)
         pass
 
     def __run_algorithm_2_round(self):
