@@ -59,8 +59,6 @@ class Controller(object):
         # step 4, 5, 6, 7
         self.__stop_if_intersection_and_distinctness_are_met()
 
-        # TODO: how to handle step 7: "appends it to all future messages"
-
         pass
 
     def __run_parallel_walks(self):
