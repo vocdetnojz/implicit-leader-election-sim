@@ -3,6 +3,7 @@ import math
 from src.node_model import NodeModel
 from src.network_builder import NetworkBuilder
 import constants
+from src.view import View
 
 
 class Controller(object):
@@ -20,6 +21,8 @@ class Controller(object):
         print("Parallel random walk count per contender: ", self.__parallel_rw_count)
         print("Parallel random walk length: ", self.__random_walk_length)
         self.__rounds = 0
+        self.view = View(self.__network)
+        self.view.render()
         pass
 
     def run(self):
@@ -46,19 +49,14 @@ class Controller(object):
     def __run_algorithm_2_round(self):
         # step 1 2
         self.__run_parallel_walks()
-
         # step 3.1
         self.__round_1()
-
         # step 3.2
         self.__round_2()
-
         # step 3.3
         self.__round_3()
-
         # step 4, 5, 6, 7
         self.__stop_if_intersection_and_distinctness_are_met()
-
         pass
 
     def __run_parallel_walks(self):
@@ -149,7 +147,7 @@ class Controller(object):
         :param contender:
         :return:
         """
-        contender.send_winner_to_proxies()
+        contender.send_winner_to_proxies(self.view)
         pass
 
     def __set_contender_proxies(self, node: NodeModel):
@@ -163,6 +161,7 @@ class Controller(object):
             proxy = self.__execute_random_walk(node, self.__random_walk_length)
             proxy.add_contender(node)
             node.add_proxy(proxy)
+            self.view.render()
             pass
         pass
 

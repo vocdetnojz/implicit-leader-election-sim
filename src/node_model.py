@@ -90,18 +90,22 @@ class NodeModel(object):
     def set_i4(self, i4):
         self.__i4 = i4
 
-    def send_winner_to_contenders(self):
+    def send_winner_to_contenders(self, view):
         for contender in self.__contenders:
             if not contender.is_winner_received:
-                contender.stop()
                 contender.receive_winner()
-                contender.send_winner_to_proxies()
+                contender.send_winner_to_proxies(view)
+                contender.stop()
+                view.render()
 
-    def send_winner_to_proxies(self):
+
+
+    def send_winner_to_proxies(self, view):
         for proxy in self.__proxies:
             if not proxy.is_winner_received:
                 proxy.receive_winner()
-                proxy.send_winner_to_contenders()
+                proxy.send_winner_to_contenders(view)
+                view.render()
 
     def proxy_distinctness(self, contender):
         return len([c for c in self.__contenders if c.id == contender.id]) == 1
