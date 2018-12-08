@@ -27,6 +27,10 @@ class NetworkModel(object):
     def contenders(self):
         return [node for node in self.__nodes if node.is_contender]
 
+    @property
+    def proxies_ids(self):
+        return [node.id for node in self.__nodes if node.get_contenders]
+
     def get_nodes_neighbors(self, node: NodeModel):
         ids = self.get_node_ids_neighbors(node.id)
         return [self.__nodes[n_id] for n_id in ids]

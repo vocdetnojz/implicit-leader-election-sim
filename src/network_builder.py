@@ -16,6 +16,10 @@ class NetworkBuilder(object):
         self.__node_matrix = NodeMatrix(self.__network_size)
         pass
 
+    @property
+    def nodes(self):
+        return self.__nodes
+
     def build_network(self):
         """
         Main function of the network builder

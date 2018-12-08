@@ -98,8 +98,6 @@ class NodeModel(object):
                 contender.stop()
                 view.render()
 
-
-
     def send_winner_to_proxies(self, view):
         for proxy in self.__proxies:
             if not proxy.is_winner_received:

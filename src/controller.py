@@ -25,6 +25,10 @@ class Controller(object):
         self.view.render()
         pass
 
+    @property
+    def net(self):
+        return self.__network
+
     def run(self):
         # algorithm 1 is basically implemented in the __init__
         self.run_algorithm_2()
@@ -158,10 +162,12 @@ class Controller(object):
         :return:
         """
         for _ in range(0, self.__parallel_rw_count):
+            c = len(self.__network.proxies_ids)
             proxy = self.__execute_random_walk(node, self.__random_walk_length)
             proxy.add_contender(node)
             node.add_proxy(proxy)
-            self.view.render()
+            if len(self.__network.proxies_ids) > c:
+                self.view.render()
             pass
         pass
 
