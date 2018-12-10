@@ -1,7 +1,6 @@
 import math
 import random
 
-from src import constants
 from src.node_model import NodeModel
 from src.node_matrix import NodeMatrix
 from src.network_model import NetworkModel
@@ -9,11 +8,14 @@ from src.network_model import NetworkModel
 
 class NetworkBuilder(object):
 
-    def __init__(self):
-        self.__network_size = int(math.pow(8, constants.super_graph_depth))
+    def __init__(self, c1, c2, net_size, connectivity=1):
+        self.__c1 = c1
+        self.__c2 = c2
+        self.__network_size = net_size
         self.__used_ids = list()  # not the part of the model, but will ensure that ids are not repeated
         self.__nodes = list()
         self.__node_matrix = NodeMatrix(self.__network_size)
+        self.__connectivity = connectivity
         pass
 
     @property
@@ -21,6 +23,17 @@ class NetworkBuilder(object):
         return self.__nodes
 
     def build_network(self):
+        for x in range(self.__network_size):
+            self.__nodes.append(self.__gen_node_model(x))
+            pass
+        for i in range(self.__network_size):
+            for j in range(i):
+                if random.random() < self.__connectivity:
+                    self.__node_matrix.make_edge(i, j)
+                    self.__node_matrix.make_edge(j, i)
+        return NetworkModel(self.__nodes, self.__node_matrix)
+
+    def build_network_4_regular(self):
         """
         Main function of the network builder
 
@@ -112,7 +125,7 @@ class NetworkBuilder(object):
 
         :return:
         """
-        return NodeModel(id, self.__calc_contender_attr())
+        return NodeModel(id, self.__calc_contender_attr(), self.__c1, self.__c2)
 
     def __calc_contender_attr(self):
         """
@@ -120,4 +133,4 @@ class NetworkBuilder(object):
 
         :return: boolean
         """
-        return random.random() <= constants.c1 * math.log10(self.__network_size) / self.__network_size
+        return random.random() <= self.__c1 * math.log10(self.__network_size) / self.__network_size

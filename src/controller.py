@@ -8,20 +8,31 @@ from src.view import View
 
 class Controller(object):
 
-    def __init__(self, network_size: int = 10):
+    def __init__(self, render: bool, network_size: int = 0, connectivity: float = 0, c1: float = 1, c2: float = 1):
+        self.__c1 = c1
+        self.__c2 = c2
         self.__pref_network_size = network_size
-        self.__network = NetworkBuilder().build_network()
-        print("Graph representation build done...\n")
-        while len(self.__network.contenders) < 3:
-            self.__network = NetworkBuilder().build_network()
-        self.__parallel_rw_count = int(constants.c2 * math.sqrt(self.__network.size * math.log10(self.__network.size)))
+        if network_size == -1:
+            n = int(math.pow(8, 2))
+            self.__network = NetworkBuilder(self.__c1, self.__c2, n).build_network_4_regular()
+            while len(self.__network.contenders) < 3:
+                self.__network = NetworkBuilder(self.__c1, self.__c2, n).build_network_4_regular()
+            print("Graph representation build done...\n")
+        else:
+            self.__network = NetworkBuilder(self.__c1, self.__c2, network_size, connectivity).build_network()
+            while len(self.__network.contenders) < 3:
+                self.__network = NetworkBuilder(self.__c1, self.__c2, network_size, connectivity).build_network()
+            pass
+        pass
+
+        self.__parallel_rw_count = int(self.__c2 * math.sqrt(self.__network.size * math.log10(self.__network.size)))
         self.__random_walk_length = constants.tu
         # stats
         print("Contenders: ", len(self.__network.contenders))
         print("Parallel random walk count per contender: ", self.__parallel_rw_count)
         print("Parallel random walk length: ", self.__random_walk_length)
         self.__rounds = 0
-        self.view = View(self.__network)
+        self.view = View(self.__network, render)
         self.view.render()
         pass
 

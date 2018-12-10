@@ -7,7 +7,9 @@ class NodeModel(object):
     Node object, has inner function which is executed at each cycle
     """
 
-    def __init__(self, id: int, is_contender: bool):
+    def __init__(self, id: int, is_contender: bool, c1: float, c2: float):
+        self.__c1 = c1
+        self.__c2 = c2
         # attributes:
         self.__id = id
         self.__contender = is_contender
@@ -109,12 +111,12 @@ class NodeModel(object):
         return len([c for c in self.__contenders if c.id == contender.id]) == 1
 
     def contender_distinctness(self, network_size):
-        limit = int((constants.c2 / 2) * math.sqrt(network_size * math.log10(network_size)))
+        limit = int((self.__c2 / 2) * math.sqrt(network_size * math.log10(network_size)))
         distinct_proxies = [proxy for proxy in self.__proxies if proxy.proxy_distinctness(self)]
         return len(distinct_proxies) >= limit
 
     def contender_intersection(self, network):
-        limit = int((3/4) * constants.c1 * math.log10(network))
+        limit = int((3/4) * self.__c1 * math.log10(network))
         set_of_adj_cont = set()
         for adj_cont in self.__i2:
             set_of_adj_cont.add(adj_cont)

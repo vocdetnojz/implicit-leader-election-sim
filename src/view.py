@@ -8,7 +8,7 @@ import shutil
 
 class View(object):
 
-    def __init__(self, model: NetworkModel):
+    def __init__(self, model: NetworkModel, render: bool):
         if os.path.exists("./graphs"):
             shutil.rmtree('./graphs')
         os.mkdir("./graphs")
@@ -17,18 +17,20 @@ class View(object):
         self.graph = nx.Graph()
         self.pos = None
         self.make_graph(model)
+        self._render = render
         pass
 
     def render(self):
-        contender_ids = [contender.id for contender in self.model.contenders]
+        if self._render:
+            contender_ids = [contender.id for contender in self.model.contenders]
 
-        proxy_ids = self.model.proxies_ids
+            proxy_ids = self.model.proxies_ids
 
-        winner_receiver_ids = [node.id for node in self.model.nodes if node.is_winner_received]
+            winner_receiver_ids = [node.id for node in self.model.nodes if node.is_winner_received]
 
-        leader = [node.id for node in self.model.nodes if node.is_leader]
+            leader = [node.id for node in self.model.nodes if node.is_leader]
 
-        self.show_graph(contender_ids, proxy_ids, winner_receiver_ids, leader)
+            self.show_graph(contender_ids, proxy_ids, winner_receiver_ids, leader)
         pass
 
     def make_graph(self, model: NetworkModel):
